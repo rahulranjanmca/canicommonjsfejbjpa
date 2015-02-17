@@ -144,4 +144,6 @@ public interface GenericService<E extends Identifiable<?>> {
 	List<E> paginate(int page, E example);
 
 	Class<E> getClazz();
+
+	E getModelWithDepth(Object id, String[] fetchRelations);
 }

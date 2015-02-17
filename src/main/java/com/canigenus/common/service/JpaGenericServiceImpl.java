@@ -390,6 +390,27 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 
 		return getEntityManager().createQuery(criteriaQuery).getSingleResult();
 	}
+	
+	@Override
+	public E getModelWithDepth(Object id,
+			String... fetchRelations) {
+		CriteriaBuilder criteriaBuilder = getEntityManager()
+				.getCriteriaBuilder();
+		CriteriaQuery<E> criteriaQuery = criteriaBuilder.createQuery(getClazz());
+		Root<E> root = criteriaQuery.from(getClazz());
+
+		for (String relation : fetchRelations) {
+			FetchParent<E, E> fetch = root;
+			for (String pathSegment : relation.split("\\.")) {
+				fetch = fetch.fetch(pathSegment, JoinType.LEFT);
+
+			}
+		}
+
+		criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+
+		return getEntityManager().createQuery(criteriaQuery).getSingleResult();
+	}
 
 	@Override
 	public <T> void deleteDetached(T model) {
