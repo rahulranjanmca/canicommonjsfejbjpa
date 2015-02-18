@@ -458,8 +458,11 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	      root = criteria.from(getClazz());
 	      TypedQuery<E> query = getEntityManager().createQuery(criteria
 	            .select(root).where(getSearchPredicates(root, example)));
+	      if(page>=0)
+	      {
 	      query.setFirstResult(page * 10).setMaxResults(
 	            10);
+	      }
 	      return query.getResultList();
 		
 	}
