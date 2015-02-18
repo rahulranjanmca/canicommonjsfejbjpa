@@ -146,4 +146,6 @@ public interface GenericService<E extends Identifiable<?>> {
 	Class<E> getClazz();
 
 	E getModelWithDepth(Object id, String[] fetchRelations);
+
+	<T extends Identifiable<?>> T saveOrUpdate(T model);
 }

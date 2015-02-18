@@ -337,6 +337,18 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	public <T> void save(T model) {
 		getEntityManager().persist(model);
 	}
+	
+	@Override
+	public <T extends Identifiable<?>> T saveOrUpdate(T model) {
+		if(model.getId()==null)
+		{
+		return getEntityManager().merge(model);
+		}
+		else{
+			getEntityManager().persist(model);
+			return model;
+		}
+	}
 
 	@Override
 	public <T> void refresh(T model) {
