@@ -340,7 +340,7 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	
 	@Override
 	public <T extends Identifiable<?>> T saveOrUpdate(T model) {
-		if(model.getId()==null)
+		if(model.getId()!=null)
 		{
 		return getEntityManager().merge(model);
 		}
