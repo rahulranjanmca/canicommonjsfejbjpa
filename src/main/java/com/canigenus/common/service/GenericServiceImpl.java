@@ -27,11 +27,11 @@ import com.canigenus.common.model.Identifiable;
 import com.canigenus.common.util.CriteriaPopulator;
 import com.canigenus.common.util.JpaCriteriaHelper;
 
-public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implements GenericService<E>, Serializable{
+public abstract class GenericServiceImpl<E extends Identifiable<?>> implements GenericService<E, JpaCriteriaHelper<?>>, Serializable{
 	private static final long serialVersionUID = 1L;
  
 	@Override
-	public <T> T getPartialModel(Class<T> clazz, Object id,
+	public <T> T get(Class<T> clazz, Object id,
 			String... fieldsToLoad) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
@@ -62,6 +62,13 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 				.setParameter("propertyValue", propertyValue) //
 				.getSingleResult() == 0;
 	}
+	
+
+	@Override
+	public boolean isUnique(String propertyName, Object propertyValue) {
+		// TODO Auto-generated method stub
+		return isUnique(getClazz(), propertyName, propertyValue);
+	}
 
 	@Override
 	public <T> boolean isUniqueExceptThis(Class<T> entity,
@@ -81,9 +88,16 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 				.setParameter("id", object.getId()) //
 				.getSingleResult() == 0;
 	}
+	
+	@Override
+	public boolean isUniqueExceptThis(Identifiable<?> object,
+			String propertyName, Object propertyValue) {
+		return isUniqueExceptThis(getClazz(), object, propertyName, propertyValue);
+	}
+
 
 	@Override
-	public <T> boolean isUniqueForSaveAndUpdate(Class<T> entity,
+	public <T> boolean isUniqueForSaveOrUpdate(Class<T> entity,
 			Identifiable<?> object, String propertyName, Object propertyValue) {
 		if (entity == null || propertyValue == null) {
 			return true;
@@ -96,9 +110,17 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 			return isUnique(entity, propertyName, propertyValue);
 		}
 	}
+	
+	@Override
+	public boolean isUniqueForSaveOrUpdate(Identifiable<?> object,
+			String propertyName, Object propertyValue) {
+		// TODO Auto-generated method stub
+		return isUniqueForSaveOrUpdate(getClazz(), object, propertyName, propertyValue);
+	}
+
 
 	@Override
-	public <T> List<T> getPartialModelList(Class<T> clazz,
+	public <T> List<T> getList(Class<T> clazz,
 			String filterFieldName, Object filterFieldValue,
 			String... fieldsToLoad) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
@@ -117,17 +139,29 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 		criteriaQuery.orderBy(criteriaBuilder.desc(r.get("id")));
 		return getEntityManager().createQuery(criteriaQuery).getResultList();
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
-	public <T> Long getModelCount(Class<T> clazz,
-			@SuppressWarnings("rawtypes") CriteriaPopulator criteriaPopulator) {
+	public List<E> getList(String filterFieldName, Object filterFieldValue) {
+		// TODO Auto-generated method stub
+		return getList(getClazz(),filterFieldName, filterFieldValue);
+	}
+	
+	@Override
+	public List<E> getList(String filterFieldName, Object filterFieldValue,
+			String... fieldsToLoad) {
+		// TODO Auto-generated method stub
+		return getList(getClazz(), filterFieldName,filterFieldValue, fieldsToLoad ) ;
+	}
+
+     @Override
+	public <T> Long getCount(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		cq.select(cb.count(cq.from(clazz)));
 		List<Predicate> predicates = new ArrayList<Predicate>();
 		if (criteriaPopulator != null) {
-			JpaCriteriaHelper<?> jpaCriteriaHelper= new JpaCriteriaHelper<>();
+			JpaCriteriaHelper<T> jpaCriteriaHelper= new JpaCriteriaHelper<>();
 			jpaCriteriaHelper.setCriteriaBuilder(cb);
 			jpaCriteriaHelper.setCriteriaQuery(cq);
 			jpaCriteriaHelper.setPredicates(predicates);
@@ -139,10 +173,18 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
+     
+     @Override
+ 	public Long getCount(
+ 			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator) {
+ 		// TODO Auto-generated method stub
+ 		return getCount(getClazz(), criteriaPopulator);
+ 	}
+
 
 	@Override
 	public <T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator criteriaPopulator,
+			Class<U> returningClass, CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
 			String column) {
 		return getSumByColumn(clazz, returningClass, criteriaPopulator, column,
 				-1, -1);
@@ -150,7 +192,7 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 
 	@Override
 	public <T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator criteriaPopulator,
+			Class<U> returningClass,CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
 			String column, int start, int end) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<U> cq = cb.createQuery(returningClass);
@@ -195,43 +237,66 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 			return number;
 
 	}
+	
+	@Override
+	public Long getMaxByColumn(String column) {
+		// TODO Auto-generated method stub
+		return getMaxByColumn(getClazz(), column);
+	}
+	   
 
 	@Override
-	public <T> List<T> getPartialModelList(Class<T> clazz,
-			CriteriaPopulator criteriaPopulator, String... fieldsToLoad) {
-		return getPartialModelList(clazz, criteriaPopulator, -1, -1,
+	public <T> List<T> getList(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator, String... fieldsToLoad) {
+		return getList(clazz, criteriaPopulator, -1, -1,
 				fieldsToLoad);
 	}
-
+	
 	@Override
-	public <T> List<T> getPartialModelList(Class<T> clazz,
-			CriteriaPopulator criteriaPopulator, int firstResult,
-			int maxResult, Map<String, Boolean> orderBy, String... fieldsToLoad) {
-		return getPartialModelListWithJoin(clazz, criteriaPopulator,
-				firstResult, maxResult, orderBy, null, fieldsToLoad);
+	public List<E> getList(
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
+			String... fieldsToLoad) {
+		return getList(getClazz(), criteriaPopulator, fieldsToLoad);
 	}
 
 	@Override
-	public <T> List<T> getPartialModelList(Class<T> clazz,
-			CriteriaPopulator criteriaPopulator, int firstResult,
+	public <T> List<T> getList(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator, int firstResult,
+			int maxResult, Map<String, Boolean> orderBy, String... fieldsToLoad) {
+		return getList(clazz, criteriaPopulator,
+				firstResult, maxResult, orderBy, null, fieldsToLoad);
+	}
+	
+	@Override
+	public List<E> getList(
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
+			int firstResult, int maxResult, Map<String, Boolean> orderBy,
+			String... fieldsToLoad) {
+		// TODO Auto-generated method stub
+		return getList(getClazz(), criteriaPopulator, firstResult, maxResult,orderBy, fieldsToLoad);
+	}
+
+	@Override
+	public <T> List<T> getList(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator, int firstResult,
 			int maxResult, String... fieldsToLoad) {
-		return getPartialModelList(clazz, criteriaPopulator, firstResult,
+		return getList(clazz, criteriaPopulator, firstResult,
 				maxResult, null, fieldsToLoad);
 	}
 	
 	@Override
-	public <T> List<T> getPartialModelListWithJoin(Class<T> clazz,
-			CriteriaPopulator criteriaPopulator, int firstResult,
+	public <T> List<T> getList(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator, int firstResult,
 			int maxResult, Map<String, Boolean> orderBy,
 			Map<String, Set<String>> joinTableWithFieldsToLoad, String... fieldsToLoad){
-		return getPartialModelListWithJoin(clazz, criteriaPopulator, firstResult, maxResult, orderBy, false, joinTableWithFieldsToLoad, fieldsToLoad);
+		return getList(clazz, criteriaPopulator, firstResult, maxResult, orderBy, false, joinTableWithFieldsToLoad, fieldsToLoad);
 		
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> List<T> getPartialModelListWithJoin(Class<T> clazz,
-			@SuppressWarnings("rawtypes") CriteriaPopulator criteriaPopulator, int firstResult,
+	public <T> List<T> getList(Class<T> clazz,
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator, int firstResult,
 			int maxResult, Map<String, Boolean> orderBy, boolean distinct, 
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad) {
@@ -259,7 +324,6 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 		}
 		if (joinTableWithFieldsToLoad != null) {
 			for (String joinTable : joinTableWithFieldsToLoad.keySet()) {
-				@SuppressWarnings("unchecked")
 				Join<Object, Object> join = (Join<Object, Object>) r.fetch(
 						joinTable, JoinType.LEFT);
 
@@ -297,9 +361,10 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 
 		return typedQuery.getResultList();
 	}
+	
 
 	@Override
-	public <T> List<T> getModelList(Class<T> clazz, String filterFieldName,
+	public <T> List<T> getList(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(clazz);
@@ -314,7 +379,7 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	}
 	
 	@Override
-	public <T> T getModel(Class<T> clazz, String filterFieldName,
+	public <T> T get(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(clazz);
@@ -326,6 +391,13 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 		}
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
+	
+	@Override
+	public  E get(String filterFieldName,
+			Object filterFieldValue) {
+		return get(getClazz(),filterFieldName, filterFieldValue);
+	}
+
 
 
 	@Override
@@ -376,35 +448,16 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 		return t;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public E get(Object id) {
 		E t = getEntityManager().find(getClazz(), id);
 		return t;
 	}
 
-	@Override
-	public <T> T getModelWithDepth(Object id, Class<T> type,
-			String... fetchRelations) {
-		CriteriaBuilder criteriaBuilder = getEntityManager()
-				.getCriteriaBuilder();
-		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(type);
-		Root<T> root = criteriaQuery.from(type);
-
-		for (String relation : fetchRelations) {
-			FetchParent<T, T> fetch = root;
-			for (String pathSegment : relation.split("\\.")) {
-				fetch = fetch.fetch(pathSegment, JoinType.LEFT);
-
-			}
-		}
-
-		criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
-
-		return getEntityManager().createQuery(criteriaQuery).getSingleResult();
-	}
 	
 	@Override
-	public E getModelWithDepth(Object id,
+	public E get(Object id,
 			String... fetchRelations) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
@@ -434,9 +487,7 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 		getEntityManager().remove(getEntityManager().find(getClazz(), id));
 	}
 	
-	@Override
-	public <T> void delete(Object id,  Class<T> classType){}
-
+	
 	public abstract EntityManager getEntityManager();
 	
 	@Override
@@ -453,8 +504,10 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	      return getEntityManager().createQuery(countCriteria)
 	            .getSingleResult();
     }
+	 
+	 
 	 @Override
-	public List<E> paginate(int page,
+	public List<E> search(int page,
 	         E example) {
 		  CriteriaBuilder builder = this.getEntityManager().getCriteriaBuilder();
 
@@ -500,7 +553,8 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	            return getEntityManager().find(getClazz(),Long.valueOf(value));
 	         }
 
-	         @Override
+	         @SuppressWarnings("unchecked")
+			@Override
 	         public String getAsString(FacesContext context,
 	               UIComponent component, Object value)
 	         {
@@ -514,4 +568,36 @@ public abstract class JpaGenericServiceImpl<E extends Identifiable<?>> implement
 	         }
 	      };
 	   }
+
+	
+
+	
+
+	@Override
+	public List<E> getList(
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
+			int firstResult, int maxResult, Map<String, Boolean> orderBy,
+			Map<String, Set<String>> joinTableWithFieldsToLoad,
+			String... fieldsToLoad) {
+		return getList(getClazz(),criteriaPopulator, firstResult, maxResult,orderBy, joinTableWithFieldsToLoad, fieldsToLoad);
+	}
+
+	@Override
+	public List<E> getList(
+			CriteriaPopulator<JpaCriteriaHelper<?>> criteriaPopulator,
+			int firstResult, int maxResult, String... fieldsToLoad) {
+		// TODO Auto-generated method stub
+		return getList(getClazz(),criteriaPopulator, firstResult, maxResult, fieldsToLoad);
+	}
+
+	
+
+	
+
+	
+
+	
+	
+
+	   
 }

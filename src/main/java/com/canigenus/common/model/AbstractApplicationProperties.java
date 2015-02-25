@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class ApplicationProperties implements Identifiable<Long> {
+public abstract  class AbstractApplicationProperties implements Identifiable<Long> {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

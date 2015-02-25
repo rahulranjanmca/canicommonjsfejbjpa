@@ -6,13 +6,13 @@ import com.canigenus.common.model.IUser;
 import com.canigenus.common.model.Identifiable;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractUserService<T extends Identifiable<?>> extends JpaGenericServiceImpl<T> {
+public abstract class AbstractUserService<T extends Identifiable<?>> extends GenericServiceImpl<T> {
 
 	private static final long serialVersionUID = 5866700361637002188L;
 
 	public <E extends IUser> E getUserWithPasswordAndRole(Class<E> clazz,
 			String userId) {
-		List<E> list = getModelList(clazz, "userId", userId);
+		List<E> list = getList(clazz, "userId", userId);
 		if (list.isEmpty()) {
 			return null;
 		} else {
@@ -23,7 +23,7 @@ public abstract class AbstractUserService<T extends Identifiable<?>> extends Jpa
 	}
 
 	public <E> boolean isUserIdExists(Class<E> clazz, String userId) {
-		List<E> userDTOs = getModelList(clazz, "userId", userId);
+		List<E> userDTOs = getList(clazz, "userId", userId);
 		if (userDTOs != null && !userDTOs.isEmpty()) {
 			return true;
 		} else

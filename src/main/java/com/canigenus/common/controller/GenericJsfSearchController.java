@@ -12,7 +12,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.service.JpaGenericServiceImpl;
+import com.canigenus.common.service.GenericServiceImpl;
 
 /**
  * 
@@ -50,7 +50,7 @@ public abstract class GenericJsfSearchController<T extends Identifiable<?>> impl
 
 	}
 
-	public abstract JpaGenericServiceImpl getService();
+	public abstract GenericServiceImpl<?> getService();
 
 	public abstract Class<T> getClassType();
 	

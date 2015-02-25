@@ -8,10 +8,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.service.GenericService;
+import com.canigenus.common.service.GenericServiceImpl;
 
 public abstract class AbstractBaseController<T extends Identifiable<?>> implements Serializable {
-	protected abstract GenericService<T> getService();
+	protected abstract GenericServiceImpl<T> getService();
 
 	private static final long serialVersionUID = 1L;
 
@@ -118,7 +118,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 
 	public void paginate() {
 		count = getService().getCount(example);
-		pageItems = getService().paginate(page, example);
+		pageItems = getService().search(page, example);
 
 	}
 
@@ -136,8 +136,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	 */
 
 	public List<T> getAll() {
-		return getService().getPartialModelList(getService().getClazz(), null,
-				(String[]) null);
+		return getService().getList(getService().getClazz(), null);
 	}
 
 	public Converter getConverter() {

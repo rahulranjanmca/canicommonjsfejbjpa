@@ -8,18 +8,18 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.canigenus.common.model.ApplicationProperties;
-import com.canigenus.common.service.JpaGenericServiceImpl;
+import com.canigenus.common.model.AbstractApplicationProperties;
+import com.canigenus.common.service.GenericServiceImpl;
 
 public abstract class AbstractMailBean {
 
-	public abstract JpaGenericServiceImpl<ApplicationProperties> getCommonService();
+	public abstract GenericServiceImpl<? extends AbstractApplicationProperties> getCommonService();
 
 	public abstract String getSMTPAddress();
 
 	public abstract int getPort();
 
-	public abstract Class<? extends ApplicationProperties> getApplicationPropertiesClass();
+	public abstract Class<? extends AbstractApplicationProperties> getApplicationPropertiesClass();
 
 	public boolean sendMail(String fromMail, String fromName, String toEmail,
 			String message, String subject, boolean isHtml) {
@@ -56,7 +56,7 @@ public abstract class AbstractMailBean {
 					getSMTPAddress(),
 					getPort(),
 					fromMail,
-					getCommonService().getModel(
+					getCommonService().get(
 							getApplicationPropertiesClass(), "key",
 							fromMail + "_PASSWORD").getValue());
 

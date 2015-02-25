@@ -7,7 +7,7 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.service.GenericService;
+import com.canigenus.common.service.GenericServiceImpl;
 import com.canigenus.common.util.JavaUtil;
 
 
@@ -15,7 +15,7 @@ public abstract class AbstractUniqueValidator implements Validator {
 	
 
 
-  public abstract GenericService getService();
+  public abstract GenericServiceImpl<?> getService();
 
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
