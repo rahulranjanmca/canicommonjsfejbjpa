@@ -1,5 +1,6 @@
 package com.canigenus.common.controller;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import javax.mail.Message; 
@@ -11,7 +12,12 @@ import javax.mail.internet.MimeMessage;
 import com.canigenus.common.model.AbstractApplicationProperties;
 import com.canigenus.common.service.GenericServiceImpl;
 
-public abstract class AbstractMailBean {
+public abstract class AbstractMailBean implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public abstract GenericServiceImpl<? extends AbstractApplicationProperties> getCommonService();
 

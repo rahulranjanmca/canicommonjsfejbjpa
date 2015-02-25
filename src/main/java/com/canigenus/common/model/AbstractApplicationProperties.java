@@ -16,7 +16,7 @@ public abstract  class AbstractApplicationProperties implements Identifiable<Lon
 	@Column(name = "ID")
 	private Long id;
 
-	@Column(name="KEY")
+	@Column(name="KEY_")
 	private String key;
 
 	@Column(name="VALUE")
