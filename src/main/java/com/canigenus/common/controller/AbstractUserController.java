@@ -77,6 +77,10 @@ public abstract class AbstractUserController<T extends IUser, U extends IPasswor
 			userDTO.getPasswords().clear();
 			session.setAttribute(GenericConstant.USERINFO, userDTO);
 			clear();
+			if(session.getAttribute("fromPage")!=null)
+			{
+				return session.getAttribute("fromPage").toString();
+			}
 			return "index";
 		} else {
 			JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle")

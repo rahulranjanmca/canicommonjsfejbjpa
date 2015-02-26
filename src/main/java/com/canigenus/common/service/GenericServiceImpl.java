@@ -46,6 +46,12 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements G
 		cq.orderBy(criteriaBuilder.desc(root.get("id")));
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
+	
+	@Override
+	public E get(Object id, String... fieldsToLoad) {
+		return get(getClazz(), id, fieldsToLoad);
+	}
+
 
 	@Override
 	public <T> boolean isUnique(Class<T> entity, String propertyName,
@@ -457,7 +463,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements G
 
 	
 	@Override
-	public E get(Object id,
+	public E getWithChild(Object id,
 			String... fetchRelations) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
@@ -472,6 +478,26 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements G
 			}
 		}
 
+		criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
+
+		return getEntityManager().createQuery(criteriaQuery).getSingleResult();
+	}
+	
+	@Override
+	public <T> T getWithChild(Class<T>  classType, Object id,
+			String... fetchRelations) {
+		CriteriaBuilder criteriaBuilder = getEntityManager()
+				.getCriteriaBuilder();
+		CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(classType);
+		Root<T> root = criteriaQuery.from(classType);
+
+		for (String relation : fetchRelations) {
+			FetchParent<T, T> fetch = root;
+			for (String pathSegment : relation.split("\\.")) {
+				fetch = fetch.fetch(pathSegment, JoinType.LEFT);
+
+			}
+		}
 		criteriaQuery.where(criteriaBuilder.equal(root.get("id"), id));
 
 		return getEntityManager().createQuery(criteriaQuery).getSingleResult();
@@ -590,6 +616,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements G
 		return getList(getClazz(),criteriaPopulator, firstResult, maxResult, fieldsToLoad);
 	}
 
+	
 	
 
 	

@@ -40,7 +40,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	<T> T get(Class<T> clazz, Object id, String... fieldsToLoad);
 
-	E get(Object id, String... fetchRelations);
+	E get(Object id, String... fieldsToLoad);
 
 	/**
 	 * @param clazz
@@ -184,5 +184,10 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	List<E> search(int page, E example);
 
 	Class<E> getClazz();
+
+	E getWithChild(Object id, String... fetchRelations);
+
+	<T> T getWithChild(Class<T> classType, Object id, String... fetchRelations);
+	
 
 }

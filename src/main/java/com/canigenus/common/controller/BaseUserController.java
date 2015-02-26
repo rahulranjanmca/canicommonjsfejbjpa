@@ -79,5 +79,15 @@ public abstract class BaseUserController {
 		session.invalidate();
 		return null;
 	}
+	
+	public String goToLogin(){
+		FacesContext facesContext=FacesContext.getCurrentInstance();
+		String viewId = facesContext.getViewRoot().getViewId();
+		ExternalContext externalContext = FacesContext.getCurrentInstance()
+				.getExternalContext();
+		HttpSession session = (HttpSession) externalContext.getSession(false);
+		session.setAttribute("fromPage", viewId);
+		return "login";
+	}
 
 }
