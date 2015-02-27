@@ -136,7 +136,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 
 	public void paginate() {
 		count = getService().getCount(example);
-		pageItems = getService().search(page, example);
+		pageItems = getService().search(page,getPageSize(), example);
 
 	}
 

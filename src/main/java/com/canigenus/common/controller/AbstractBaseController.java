@@ -100,7 +100,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	}
 
 	public int getPageSize() {
-		return 10;
+		return 1;
 	}
 
 	public T getExample() {
@@ -118,7 +118,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 
 	public void paginate() {
 		count = getService().getCount(example);
-		pageItems = getService().search(page, example);
+		pageItems = getService().search(page,getPageSize(), example);
 
 	}
 

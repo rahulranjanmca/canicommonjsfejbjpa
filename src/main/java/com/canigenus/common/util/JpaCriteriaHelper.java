@@ -1,5 +1,6 @@
 package com.canigenus.common.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,7 +11,7 @@ public class JpaCriteriaHelper<T> {
 	
 	 CriteriaBuilder criteriaBuilder;
 	 CriteriaQuery<T> criteriaQuery;
-	 List<Predicate> predicates;
+	 List<Predicate> predicates= new ArrayList<Predicate>();
 	
 	 public CriteriaBuilder getCriteriaBuilder() {
 		return criteriaBuilder;

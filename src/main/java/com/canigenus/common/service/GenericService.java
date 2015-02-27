@@ -76,7 +76,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	 * @param fieldsToLoad
 	 * @return
 	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<F> criteriaPopulator,
+	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad);
@@ -94,7 +94,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	 * @param fieldsToLoad
 	 * @return
 	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<F> criteriaPopulator,
+	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
 			int firstResult, int maxResult, String... fieldsToLoad);
 
 	List<E> getList(CriteriaPopulator<F> criteriaPopulator, int firstResult,
@@ -109,7 +109,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	 * @param fieldsToLoad
 	 * @return
 	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<F> criteriaPopulator,
+	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			String... fieldsToLoad);
 
@@ -124,7 +124,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	 * @return
 	 */
 	<T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<F> criteriaPopulator, String... fieldsToLoad);
+			CriteriaPopulator<?> criteriaPopulator, String... fieldsToLoad);
 	
 	 List<E> getList(CriteriaPopulator<F> criteriaPopulator, String... fieldsToLoad);
 	
@@ -134,16 +134,16 @@ public interface GenericService<E extends Identifiable<?>, F> {
 	 * @param criteriaPopulator
 	 * @return
 	 */
-	<T> Long getCount(Class<T> clazz, CriteriaPopulator<F> criteriaPopulator);
+	<T> Long getCount(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator);
 	
 	Long getCount(CriteriaPopulator<F> criteriaPopulator);
 
 	<T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<F> criteriaPopulator,
+			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator,
 			String column);
 
 	<T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<F> criteriaPopulator,
+			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator,
 			String column, int start, int end);
 
 	<T> boolean isUnique(Class<T> entity, String propertyName,
@@ -167,7 +167,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	Long getMaxByColumn(String column);
 
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<F> criteriaPopulator,
+	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			boolean distinct,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
@@ -181,13 +181,19 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	Long getCount(E example);
 
-	List<E> search(int page, E example);
+	List<E> search(int page, int pageSize, E example);
 
 	Class<E> getClazz();
 
 	E getWithChild(Object id, String... fetchRelations);
 
 	<T> T getWithChild(Class<T> classType, Object id, String... fetchRelations);
+
+     <T>	T getWithChild(Class<T> clazz, String filterFieldName, Object filterFieldValue,
+			String... fetchRelations);
+
+	E getWithChild(String filterFieldName, Object filterFieldValue,
+			String... fetchRelations);
 	
 
 }

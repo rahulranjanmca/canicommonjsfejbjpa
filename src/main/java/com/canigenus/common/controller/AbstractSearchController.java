@@ -18,7 +18,7 @@ import com.canigenus.common.service.GenericServiceImpl;
  * 
  * @author Rahul
  */
-public abstract class GenericJsfSearchController<T extends Identifiable<?>> implements
+public abstract class AbstractSearchController<T extends Identifiable<?>> implements
 		Serializable {
 
 	protected void addMessage(String str) {
@@ -46,7 +46,7 @@ public abstract class GenericJsfSearchController<T extends Identifiable<?>> impl
 
 	protected T current;
 	
-	public GenericJsfSearchController() {
+	public AbstractSearchController() {
 
 	}
 
