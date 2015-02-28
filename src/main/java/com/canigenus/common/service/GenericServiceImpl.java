@@ -480,7 +480,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		return t;
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public E get(Object id) {
 		E t = getEntityManager().find(getClazz(), id);
