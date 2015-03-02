@@ -89,7 +89,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	private long count;
 	private List<T> pageItems;
 
-	private T example = instanciateEntity();
+	protected T example = instanciateEntity();
 
 	public int getPage() {
 		return this.page;
@@ -117,8 +117,8 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	}
 
 	public void paginate() {
-		count = getService().getCount(example);
-		pageItems = getService().search(page,getPageSize(), example);
+		count = getService().getCount(getExample());
+		pageItems = getService().search(page,getPageSize(), getExample());
 
 	}
 
