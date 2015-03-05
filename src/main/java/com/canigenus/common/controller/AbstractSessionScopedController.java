@@ -5,6 +5,7 @@
 package com.canigenus.common.controller;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
@@ -23,6 +24,8 @@ import com.canigenus.common.util.JsfUtil;
  */
 public abstract class AbstractSessionScopedController<T extends Identifiable<?>> implements
 		Serializable, Controllable<T> {
+	
+	
 
 	protected void addMessage(String str) {
 		FacesMessage msg = new FacesMessage(str);
@@ -60,10 +63,6 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 		return current;
 	}
 
-	
-	 public void search() {
-			//items = new JPADataModelForPrimeFaces<T>(getService(),getCriteriaPopulator(), getClassType(), null);
-		}
 		
 	public String prepareList() {
 		//recreateModel();
@@ -103,6 +102,7 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 					.getString(getClassType().getSimpleName()+"Updated"));
 			return "List";
 		} catch (Exception e) {
+			e.printStackTrace();
 			JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle")
 					.getString("PersistenceErrorOccured"));
 			return null;
@@ -159,5 +159,51 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 	}*/
 
 	public abstract CriteriaPopulator<?> getCriteriaPopulator();
+	
+	
+	private int page;
+	private long count;
+	private List<T> pageItems;
+
+	protected T example = instantiateEntity();
+
+	public int getPage() {
+		return this.page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public int getPageSize() {
+		return 10;
+	}
+
+	public T getExample() {
+		return this.example;
+	}
+
+	public void setExample(T example) {
+		this.example = example;
+	}
+
+	public String search() {
+		this.page = 0;
+		return null;
+	}
+
+	public void paginate() {
+		count = getService().getCount(getExample());
+		pageItems = getService().search(page,getPageSize(), getExample());
+
+	}
+
+	public List<T> getPageItems() {
+		return this.pageItems;
+	}
+
+	public long getCount() {
+		return this.count;
+	}
 
 }
