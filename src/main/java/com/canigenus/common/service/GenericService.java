@@ -185,9 +185,9 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	Class<E> getClazz();
 
-	E getWithChild(Object id, String... fetchRelations);
+	E getWithChildById(Object id, String... fetchRelations);
 
-	<T> T getWithChild(Class<T> classType, Object id, String... fetchRelations);
+	<T> T getWithChildById(Class<T> classType, Object id, String... fetchRelations);
 
      <T>	T getWithChild(Class<T> clazz, String filterFieldName, Object filterFieldValue,
 			String... fetchRelations);

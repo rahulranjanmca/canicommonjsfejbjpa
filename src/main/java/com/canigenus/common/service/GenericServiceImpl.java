@@ -488,7 +488,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	}
 
 	@Override
-	public E getWithChild(Object id, String... fetchRelations) {
+	public E getWithChildById(Object id, String... fetchRelations) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
 		CriteriaQuery<E> criteriaQuery = criteriaBuilder
@@ -509,7 +509,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	}
 
 	@Override
-	public <T> T getWithChild(Class<T> classType, Object id,
+	public <T> T getWithChildById(Class<T> classType, Object id,
 			String... fetchRelations) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
