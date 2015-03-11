@@ -435,7 +435,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	}
 
 	@Override
-	public <T> T update(T model) {
+	public <T extends Identifiable<?>> T update(T model) {
 		return getEntityManager().merge(model);
 	}
 

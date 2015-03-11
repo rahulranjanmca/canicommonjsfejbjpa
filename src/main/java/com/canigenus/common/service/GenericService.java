@@ -25,7 +25,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	<T extends Identifiable<?>> T saveOrUpdate(T model);
 
-	<T> T update(T model);
+	<T extends Identifiable<?>> T update(T model);
 
 	/**
 	 * @param clazz
