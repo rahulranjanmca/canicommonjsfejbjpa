@@ -3,7 +3,7 @@ package com.canigenus.common.model;
 import java.util.List;
 import java.util.Set;
 
-public interface IUser {
+public interface IUser<E> extends Identifiable<E>{
 
 	public String getUserId();
 

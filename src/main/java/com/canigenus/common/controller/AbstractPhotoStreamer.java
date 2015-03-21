@@ -4,19 +4,6 @@
  */
 package com.canigenus.common.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.logging.Logger;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-
-import org.hibernate.validator.internal.util.logging.LoggerFactory;
-
-import com.canigenus.common.service.GenericServiceImpl;
 
 /**
  * @author ranjarah

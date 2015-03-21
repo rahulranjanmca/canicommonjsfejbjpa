@@ -10,7 +10,7 @@ public abstract class AbstractUserService<T extends Identifiable<?>> extends Gen
 
 	private static final long serialVersionUID = 5866700361637002188L;
 
-	public <E extends IUser> E getUserWithPasswordAndRole(Class<E> clazz,
+	public <E extends IUser<?>> E getUserWithPasswordAndRole(Class<E> clazz,
 			String userId) {
 		List<E> list = getList(clazz, "userId", userId);
 		if (list.isEmpty()) {

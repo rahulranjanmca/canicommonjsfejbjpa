@@ -100,7 +100,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	}
 
 	public int getPageSize() {
-		return 1;
+		return 10;
 	}
 
 	public T getExample() {

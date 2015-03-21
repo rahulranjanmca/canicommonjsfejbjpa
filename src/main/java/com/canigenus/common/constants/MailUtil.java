@@ -57,7 +57,7 @@ public class MailUtil {
 	public static void main(String args[]) throws Exception {
 		
 		String str="<html><body> Thank Your for Signing For Ads Project. Please Click on the Link Below to Activate the Account<br/> <br/> <a href='abc'>Click Here to Activate</a></body></html>";
-		
+		System.out.println(str);
 		//MailUtil.sendMail("http://localhost:8765/contacts/rest/contact/sendMessageWithBodyHtml/rahulranjanmca@gmail.com","rahulranjanmca@gmail.com", "Subject", str);
 		/*MailUtil.sendMail("donotreply@canigenus.com", "mail@canigenus.com",
 				"password*9", "Subjecrt", "TExt", "smtp", "smtp.canigenus.com",

@@ -18,7 +18,7 @@ import com.canigenus.common.service.AbstractUserService;
 import com.canigenus.common.util.JsfUtil;
 import com.canigenus.common.util.PasswordUtil;
 
-public abstract class AbstractUserController<T extends IUser, U extends IPassword> {
+public abstract class AbstractUserController<T extends IUser<?>, U extends IPassword> {
 
 	private T current;
 

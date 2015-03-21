@@ -13,9 +13,9 @@ public abstract class BaseUserController {
 		ExternalContext externalContext = FacesContext.getCurrentInstance()
 				.getExternalContext();
 		HttpSession session = (HttpSession) externalContext.getSession(false);
-		IUser userDTO;
+		IUser<?> userDTO;
 		if (session != null
-				&& (userDTO = (IUser) session
+				&& (userDTO = (IUser<?>) session
 						.getAttribute(GenericConstant.USERINFO)) != null) {
 			return userDTO.getUserId();
 		} else {
@@ -23,13 +23,13 @@ public abstract class BaseUserController {
 		}
 	}
 	
-	public  static IUser getUser() {
+	public  static IUser<?> getUser() {
 		ExternalContext externalContext = FacesContext.getCurrentInstance()
 				.getExternalContext();
 		HttpSession session = (HttpSession) externalContext.getSession(false);
-		IUser userDTO;
+		IUser<?> userDTO;
 		if (session != null
-				&& (userDTO = (IUser) session
+				&& (userDTO = (IUser<?>) session
 						.getAttribute(GenericConstant.USERINFO)) != null) {
 			return userDTO;
 		} else {
@@ -53,9 +53,9 @@ public abstract class BaseUserController {
 		ExternalContext externalContext = FacesContext.getCurrentInstance()
 				.getExternalContext();
 		HttpSession session = (HttpSession) externalContext.getSession(false);
-		IUser userDTO;
+		IUser<?> userDTO;
 		if (session != null
-				&& (userDTO = (IUser) session
+				&& (userDTO = (IUser<?>) session
 						.getAttribute(GenericConstant.USERINFO)) != null) {
 
 			for (Enum<?> role1 : userDTO.getRoles())
