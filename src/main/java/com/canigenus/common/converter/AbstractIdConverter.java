@@ -9,7 +9,7 @@ import com.canigenus.common.service.GenericServiceImpl;
 
 public abstract class AbstractIdConverter implements Converter{
 
-	public abstract GenericServiceImpl<?> getService();
+	public abstract GenericServiceImpl<?,?> getService();
 
 	public String getName() {
 		return "name";

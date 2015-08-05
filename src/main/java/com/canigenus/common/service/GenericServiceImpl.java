@@ -1,13 +1,12 @@
 package com.canigenus.common.service;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
@@ -24,15 +23,13 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.util.CriteriaPopulator;
-import com.canigenus.common.util.JpaCriteriaHelper;
 
-public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
-		GenericService<E, JpaCriteriaHelper<E>>, Serializable {
+public abstract class GenericServiceImpl<E extends Identifiable<?>, U extends E> implements
+		GenericService<E, U>, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public <T> T get(Class<T> clazz, Object id, String... fieldsToLoad) {
+	public <T> T getPartialEntity(Class<T> clazz, Object id, String... fieldsToLoad) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
 		CriteriaQuery<T> cq = criteriaBuilder.createQuery(clazz);
@@ -48,8 +45,8 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	}
 
 	@Override
-	public E get(Object id, String... fieldsToLoad) {
-		return get(getClazz(), id, fieldsToLoad);
+	public E getPartialEntity(Object id, String... fieldsToLoad) {
+		return getPartialEntity(getEntityClazz(), id, fieldsToLoad);
 	}
 
 	@Override
@@ -71,7 +68,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	@Override
 	public boolean isUnique(String propertyName, Object propertyValue) {
 		// TODO Auto-generated method stub
-		return isUnique(getClazz(), propertyName, propertyValue);
+		return isUnique(getEntityClazz(), propertyName, propertyValue);
 	}
 
 	@Override
@@ -96,7 +93,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	@Override
 	public boolean isUniqueExceptThis(Identifiable<?> object,
 			String propertyName, Object propertyValue) {
-		return isUniqueExceptThis(getClazz(), object, propertyName,
+		return isUniqueExceptThis(getEntityClazz(), object, propertyName,
 				propertyValue);
 	}
 
@@ -118,13 +115,12 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	@Override
 	public boolean isUniqueForSaveOrUpdate(Identifiable<?> object,
 			String propertyName, Object propertyValue) {
-		// TODO Auto-generated method stub
-		return isUniqueForSaveOrUpdate(getClazz(), object, propertyName,
+		return isUniqueForSaveOrUpdate(getEntityClazz(), object, propertyName,
 				propertyValue);
 	}
 
 	@Override
-	public <T> List<T> getList(Class<T> clazz, String filterFieldName,
+	public <T> List<T> getListWithPartialEntityByColumnNameAndValue(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue, String... fieldsToLoad) {
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
@@ -141,93 +137,51 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		}
 		criteriaQuery.orderBy(criteriaBuilder.desc(r.get("id")));
 		return getEntityManager().createQuery(criteriaQuery).getResultList();
+		
 	}
-
+	
 	@Override
-	public List<E> getList(String filterFieldName, Object filterFieldValue) {
-		// TODO Auto-generated method stub
-		return getList(getClazz(), filterFieldName, filterFieldValue);
-	}
-
-	@Override
-	public List<E> getList(String filterFieldName, Object filterFieldValue,
+	public List<E> getListWithPartialEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue,
 			String... fieldsToLoad) {
-		// TODO Auto-generated method stub
-		return getList(getClazz(), filterFieldName, filterFieldValue,
+		return getListWithPartialEntityByColumnNameAndValue(getEntityClazz(), filterFieldName, filterFieldValue,
 				fieldsToLoad);
 	}
 
 	@Override
-	public <T> Long getCount(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator2) {
-		@SuppressWarnings("unchecked")
-		CriteriaPopulator<JpaCriteriaHelper<T>> criteriaPopulator = (CriteriaPopulator<JpaCriteriaHelper<T>>) criteriaPopulator2;
+	public List<E> getListByColumnNameAndValue(String filterFieldName, Object filterFieldValue) {
+		// TODO Auto-generated method stub
+		return getListByColumnNameAndValue(getEntityClazz(), filterFieldName, filterFieldValue);
+	}
+	
+	@Override
+	public <T> List<T> getListByColumnNameAndValue(Class<T> clazz, String filterFieldName,
+			Object filterFieldValue) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(clazz);
+		Root<T> r = cq.from(clazz);
+		if (filterFieldValue == null) {
+			cq.where(cb.isNull(r.get(filterFieldName)));
+		} else {
+			cq.where(cb.equal(r.get(filterFieldName), filterFieldValue));
+		}
+		cq.orderBy(cb.desc(r.get("id")));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Override
+	public Long getCount(U example) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-		cq.select(cb.count(cq.from(clazz)));
+		Root<E> root=cq.from(getEntityClazz());
+		cq.select(cb.count(root));
 		List<Predicate> predicates = new ArrayList<Predicate>();
-		if (criteriaPopulator != null) {
-			JpaCriteriaHelper<T> jpaCriteriaHelper = new JpaCriteriaHelper<>();
-			jpaCriteriaHelper.setCriteriaBuilder(cb);
-			jpaCriteriaHelper.setCriteriaQuery(cq);
-			jpaCriteriaHelper.setPredicates(predicates);
-			criteriaPopulator.populateCriteria(jpaCriteriaHelper);
-		}
 		Predicate[] array = new Predicate[predicates.size()];
 		array = predicates.toArray(array);
-		cq.where(cb.and(array));
-
+		cq.where(cb.and(getSearchPredicates(root, example)));
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
+	
 
-	@Override
-	public Long getCount(
-			CriteriaPopulator<JpaCriteriaHelper<E>> criteriaPopulator) {
-		// TODO Auto-generated method stub
-		return getCount(getClazz(), criteriaPopulator);
-	}
-
-	@Override
-	public <T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator,
-			String column) {
-		return getSumByColumn(clazz, returningClass, criteriaPopulator, column,
-				-1, -1);
-	}
-
-	@Override
-	public <T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator2,
-			String column, int start, int end) {
-		@SuppressWarnings("unchecked")
-		CriteriaPopulator<JpaCriteriaHelper<T>> criteriaPopulator = (CriteriaPopulator<JpaCriteriaHelper<T>>) criteriaPopulator2;
-		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<U> cq = cb.createQuery(returningClass);
-		Root<T> personEntity = cq.from(clazz);
-		List<Predicate> predicates = new ArrayList<Predicate>();
-		if (criteriaPopulator != null) {
-			JpaCriteriaHelper<T> jpaCriteriaHelper = new JpaCriteriaHelper<>();
-			jpaCriteriaHelper.setCriteriaBuilder(cb);
-			jpaCriteriaHelper.setCriteriaQuery(cq);
-			jpaCriteriaHelper.setPredicates(predicates);
-			criteriaPopulator.populateCriteria(jpaCriteriaHelper);
-		}
-
-		Predicate[] array = new Predicate[predicates.size()];
-		array = predicates.toArray(array);
-		cq.where(cb.and(array));
-
-		Path<U> ageAttr = personEntity.<U> get(column);
-		cq = cq.select(cb.sum(ageAttr));
-
-		TypedQuery<U> typedQuery = getEntityManager().createQuery(cq);
-		if (start > 0) {
-			typedQuery.setMaxResults(start);
-			typedQuery.setFirstResult(end);
-		}
-		return typedQuery.getSingleResult();
-
-	}
 
 	@Override
 	public <T> Long getMaxByColumn(Class<T> clazz, String column) {
@@ -247,83 +201,41 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 
 	@Override
 	public Long getMaxByColumn(String column) {
-		// TODO Auto-generated method stub
-		return getMaxByColumn(getClazz(), column);
+		return getMaxByColumn(getEntityClazz(), column);
 	}
 
-	@Override
-	public <T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator, String... fieldsToLoad) {
-		return getList(clazz, criteriaPopulator, -1, -1, fieldsToLoad);
-	}
-
+	
 	@Override
 	public List<E> getList(
-			CriteriaPopulator<JpaCriteriaHelper<E>> criteriaPopulator,
+			U criteriaPopulator,
 			String... fieldsToLoad) {
-		return getList(getClazz(), criteriaPopulator, fieldsToLoad);
-	}
-
-	@Override
-	public <T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator, int firstResult,
-			int maxResult, Map<String, Boolean> orderBy, String... fieldsToLoad) {
-		return getList(clazz, criteriaPopulator, firstResult, maxResult,
-				orderBy, null, fieldsToLoad);
+		return getList(criteriaPopulator, fieldsToLoad);
 	}
 
 	@Override
 	public List<E> getList(
-			CriteriaPopulator<JpaCriteriaHelper<E>> criteriaPopulator,
+			U criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			String... fieldsToLoad) {
-		// TODO Auto-generated method stub
-		return getList(getClazz(), criteriaPopulator, firstResult, maxResult,
+		return getList(criteriaPopulator, firstResult, maxResult,
 				orderBy, fieldsToLoad);
 	}
 
-	@Override
-	public <T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator, int firstResult,
-			int maxResult, String... fieldsToLoad) {
-		return getList(clazz, criteriaPopulator, firstResult, maxResult, null,
-				fieldsToLoad);
-	}
+	
 
 	@Override
-	public <T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator, int firstResult,
-			int maxResult, Map<String, Boolean> orderBy,
-			Map<String, Set<String>> joinTableWithFieldsToLoad,
-			String... fieldsToLoad) {
-		return getList(clazz, criteriaPopulator, firstResult, maxResult,
-				orderBy, false, joinTableWithFieldsToLoad, fieldsToLoad);
-
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator2, int firstResult,
+	public  List<E> getList(U criteriaPopulator2, int firstResult,
 			int maxResult, Map<String, Boolean> orderBy, boolean distinct,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad) {
-
-		CriteriaPopulator<JpaCriteriaHelper<T>> criteriaPopulator = (CriteriaPopulator<JpaCriteriaHelper<T>>) criteriaPopulator2;
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<T> cq = cb.createQuery(clazz);
-		Root<T> r = cq.from(clazz);
+		CriteriaQuery<E> cq = cb.createQuery(getEntityClazz());
+		Root<E> r = cq.from(getEntityClazz());
 		List<Predicate> predicates = new ArrayList<Predicate>();
-		if (criteriaPopulator != null) {
-			JpaCriteriaHelper<T> jpaCriteriaHelper = new JpaCriteriaHelper<>();
-			jpaCriteriaHelper.setCriteriaBuilder(cb);
-			jpaCriteriaHelper.setCriteriaQuery(cq);
-			jpaCriteriaHelper.setPredicates(predicates);
-			criteriaPopulator.populateCriteria(jpaCriteriaHelper);
-		}
+		
 		Predicate[] array = new Predicate[predicates.size()];
 		array = predicates.toArray(array);
-		cq.where(cb.and(array));
+		cq.where(cb.and(getSearchPredicates(r, criteriaPopulator2)));
 
 		List<Selection<?>> selections = new ArrayList<Selection<?>>();
 		if (fieldsToLoad != null) {
@@ -334,7 +246,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		}
 		if (joinTableWithFieldsToLoad != null) {
 			for (String joinTable : joinTableWithFieldsToLoad.keySet()) {
-				Join<Object, Object> join = (Join<Object, Object>) r.fetch(
+				Join<Object, Object> join = (Join<Object, Object>) r.join(
 						joinTable, JoinType.LEFT);
 
 				for (String fieldsToLoad2 : joinTableWithFieldsToLoad
@@ -362,7 +274,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		if (distinct) {
 			cq.distinct(true);
 		}
-		TypedQuery<T> typedQuery = getEntityManager().createQuery(cq);
+		TypedQuery<E> typedQuery = getEntityManager().createQuery(cq);
 		if (maxResult > 0) {
 			typedQuery.setMaxResults(maxResult);
 			typedQuery.setFirstResult(firstResult);
@@ -371,21 +283,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		return typedQuery.getResultList();
 	}
 
-	@Override
-	public <T> List<T> getList(Class<T> clazz, String filterFieldName,
-			Object filterFieldValue) {
-		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<T> cq = cb.createQuery(clazz);
-		Root<T> r = cq.from(clazz);
-		if (filterFieldValue == null) {
-			cq.where(cb.isNull(r.get(filterFieldName)));
-		} else {
-			cq.where(cb.equal(r.get(filterFieldName), filterFieldValue));
-		}
-		cq.orderBy(cb.desc(r.get("id")));
-		return getEntityManager().createQuery(cq).getResultList();
-	}
-
+	
 	@Override
 	public <T> T get(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue) {
@@ -425,13 +323,13 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	@Override
 	public E getWithChild(String filterFieldName, Object filterFieldValue,
 			String... fetchRelations) {
-		return getWithChild(getClazz(), filterFieldName, filterFieldValue,
+		return getWithChild(getEntityClazz(), filterFieldName, filterFieldValue,
 				fetchRelations);
 	}
 
 	@Override
 	public E get(String filterFieldName, Object filterFieldValue) {
-		return get(getClazz(), filterFieldName, filterFieldValue);
+		return get(getEntityClazz(), filterFieldName, filterFieldValue);
 	}
 
 	@Override
@@ -481,10 +379,11 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 	}
 
 	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public E get(Object id) {
-		E t = getEntityManager().find(getClazz(), id);
+		E t = getEntityManager().find(getEntityClazz(), id);
 		return t;
 	}
 
@@ -493,8 +392,8 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 		CriteriaBuilder criteriaBuilder = getEntityManager()
 				.getCriteriaBuilder();
 		CriteriaQuery<E> criteriaQuery = criteriaBuilder
-				.createQuery(getClazz());
-		Root<E> root = criteriaQuery.from(getClazz());
+				.createQuery(getEntityClazz());
+		Root<E> root = criteriaQuery.from(getEntityClazz());
 
 		for (String relation : fetchRelations) {
 			FetchParent<E, E> fetch = root;
@@ -536,38 +435,38 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 
 	@Override
 	public void deleteById(Object id) {
-		getEntityManager().remove(getEntityManager().find(getClazz(), id));
+		getEntityManager().remove(getEntityManager().find(getEntityClazz(), id));
 	}
 
 	public abstract EntityManager getEntityManager();
 
-	@Override
-	public abstract Class<E> getClazz();
+	
+	public  Class<E> getEntityClazz(){
+		@SuppressWarnings("unchecked")
+		Class<E> persistentClass = (Class<E>)
+				   ((ParameterizedType)getClass().getGenericSuperclass())
+				      .getActualTypeArguments()[0];
+					return persistentClass;
+		};
+	
+	public  Class<U> getCriteriaClazz(){
+		@SuppressWarnings("unchecked")
+		Class<U> persistentClass = (Class<U>)
+				   ((ParameterizedType)getClass().getGenericSuperclass())
+				      .getActualTypeArguments()[1];
+					return persistentClass;
+	};
+
 
 	@Override
-	public Long getCount(E example) {
-		// Populate this.count
-		CriteriaBuilder builder = getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<Long> countCriteria = builder.createQuery(Long.class);
-		Root<E> root = countCriteria.from(getClazz());
-		countCriteria = countCriteria.select(builder.count(root)).where(
-				getSearchPredicates(root, example));
-		return getEntityManager().createQuery(countCriteria).getSingleResult();
-	}
-
-	@Override
-	public List<E> search(int page, int pageSize, E example) {
+	public List<E> search(int page, int pageSize, U example) {
 		CriteriaBuilder builder = this.getEntityManager().getCriteriaBuilder();
 
-		// Populate this.count
-
 		CriteriaQuery<Long> countCriteria = builder.createQuery(Long.class);
-		Root<E> root = countCriteria.from(getClazz());
+		Root<E> root = countCriteria.from(getEntityClazz());
 
-		// Populate this.pageItems
-
-		CriteriaQuery<E> criteria = builder.createQuery(getClazz());
-		root = criteria.from(getClazz());
+		CriteriaQuery<E> criteria = builder.createQuery(getEntityClazz());
+		root = criteria.from(getEntityClazz());
 		TypedQuery<E> query = getEntityManager()
 				.createQuery(
 						criteria.select(root).where(
@@ -579,24 +478,21 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 
 	}
 
-	protected abstract Predicate[] getSearchPredicates(Root<E> root, E example);
+	protected  Predicate[] getSearchPredicates(Root<E> root, U example){
+		Predicate[] predicates=new  Predicate[0];
+		return predicates;
+	}
+ 
 
-	@Resource
-	private SessionContext sessionContext;
-
-	@Override
+	//@Override
 	public Converter getConverter() {
-		// final MemberBean ejbProxy =
-		// this.sessionContext.getBusinessObject(getClass());
 		return new Converter() {
-
 			@Override
 			public Object getAsObject(FacesContext context,
 					UIComponent component, String value) {
 
-				return getEntityManager().find(getClazz(), Long.valueOf(value));
+				return getEntityManager().find(getEntityClazz(), Long.valueOf(value));
 			}
-
 			@SuppressWarnings("unchecked")
 			@Override
 			public String getAsString(FacesContext context,
@@ -605,7 +501,6 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 				if (value == null) {
 					return "";
 				}
-
 				return String.valueOf(((E) value).getId());
 			}
 		};
@@ -613,21 +508,22 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>> implements
 
 	@Override
 	public List<E> getList(
-			CriteriaPopulator<JpaCriteriaHelper<E>> criteriaPopulator,
+			U criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad) {
-		return getList(getClazz(), criteriaPopulator, firstResult, maxResult,
+		return getList(criteriaPopulator, firstResult, maxResult,
 				orderBy, joinTableWithFieldsToLoad, fieldsToLoad);
 	}
 
 	@Override
 	public List<E> getList(
-			CriteriaPopulator<JpaCriteriaHelper<E>> criteriaPopulator,
+			U criteriaPopulator,
 			int firstResult, int maxResult, String... fieldsToLoad) {
-		// TODO Auto-generated method stub
-		return getList(getClazz(), criteriaPopulator, firstResult, maxResult,
+		return getList(criteriaPopulator, firstResult, maxResult,
 				fieldsToLoad);
 	}
+	
+	
 
 }

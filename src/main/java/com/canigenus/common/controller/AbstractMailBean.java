@@ -19,7 +19,7 @@ public abstract class AbstractMailBean implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public abstract GenericServiceImpl<? extends AbstractApplicationProperties> getCommonService();
+	public abstract GenericServiceImpl<? extends AbstractApplicationProperties,? extends AbstractApplicationProperties> getCommonService();
 
 	public abstract String getSMTPAddress();
 

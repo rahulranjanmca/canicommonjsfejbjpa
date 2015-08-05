@@ -14,18 +14,27 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpSession;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.service.GenericServiceImpl;
-import com.canigenus.common.util.CriteriaPopulator;
+import com.canigenus.common.service.GenericService;
 import com.canigenus.common.util.JsfUtil;
 
 /**
  * 
  * @author Rahul
  */
-public abstract class AbstractSessionScopedController<T extends Identifiable<?>> implements
-		Serializable, Controllable<T> {
+public abstract class AbstractSessionScopedController<T extends Identifiable<?>, U extends T> implements
+		Serializable, Controllable<T, U> {
 	
 	
+	private Class<T> t;
+	private Class<U> u;
+	public AbstractSessionScopedController() {
+	}
+	
+	public AbstractSessionScopedController(Class<T> t, Class<U> u) {
+		this.t=t;
+		this.u=u;
+		example = instantiateCriteria();
+	}
 
 	protected void addMessage(String str) {
 		FacesMessage msg = new FacesMessage(str);
@@ -38,34 +47,14 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 		session.removeAttribute(beanName);
 	}
 
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 8983428198453421888L;
 
 	private T current;
-	//private JPADataModelForPrimeFaces<T> items = null;
 
-	public AbstractSessionScopedController() {
+	public abstract GenericService<T, U> getService();
 
-	}
-
-	public abstract GenericServiceImpl<T> getService();
-
-	public abstract Class<T> getClassType();
-
-	public abstract T instantiateEntity();
-
-	public T getSelected() {
-		if (current == null) {
-			current = instantiateEntity();
-		}
-		return current;
-	}
-
-		
 	public String prepareList() {
-		//recreateModel();
 		return "List";
 	}
 
@@ -80,9 +69,8 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 
 	public String create() {
 		try {
-			getService().update(current);
-			JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle")
-					.getString(getClassType().getSimpleName()+"Created"));
+			setCurrent(getService().update(current));;
+			JsfUtil.addSuccessMessage(getEntityClazz().getSimpleName()+" Created");
 			return "List";
 		} catch (Exception e) {
 			JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle")
@@ -97,9 +85,8 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 
 	public String update() {
 		try {
-			getService().update(current);
-			JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle")
-					.getString(getClassType().getSimpleName()+"Updated"));
+			setCurrent(getService().update(current));;
+			JsfUtil.addSuccessMessage(getEntityClazz().getSimpleName()+" Updated");
 			return "List";
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,8 +105,7 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 
 		try {
 			getService().deleteDetached(current);
-			JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle")
-					.getString(getClassType().getSimpleName()+"Deleted"));
+			JsfUtil.addSuccessMessage(getEntityClazz().getSimpleName()+" Deleted");
 		} catch (Exception e) {
 			JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle")
 					.getString("PersistenceErrorOccured"));
@@ -133,13 +119,13 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 	}
 
 	public SelectItem[] getItemsAvailableSelectMany() {
-		return JsfUtil.getSelectItems(
-				getService().getList(getClassType(), null), false);
+		return JsfUtil.getSelectItemsWithId(
+				getService().getList(instantiateCriteria()), false);
 	}
 
 	public SelectItem[] getItemsAvailableSelectOne() {
-		return JsfUtil.getSelectItems(
-				getService().getList(getClassType(), null), true);
+		return JsfUtil.getSelectItemsWithId(
+				getService().getList(instantiateCriteria()), true);
 	}
 
 	public T getCurrent() {
@@ -150,22 +136,12 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 		this.current = current;
 	}
 
-	/*public JPADataModelForPrimeFaces<T> getItems() {
-		return items;
-	}
-
-	public void setItems(JPADataModelForPrimeFaces<T> items) {
-		this.items = items;
-	}*/
-
-	public abstract CriteriaPopulator<?> getCriteriaPopulator();
-	
 	
 	private int page;
 	private long count;
 	private List<T> pageItems;
 
-	protected T example = instantiateEntity();
+	protected U example;
 
 	public int getPage() {
 		return this.page;
@@ -179,11 +155,11 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 		return 10;
 	}
 
-	public T getExample() {
+	public U getExample() {
 		return this.example;
 	}
 
-	public void setExample(T example) {
+	public void setExample(U example) {
 		this.example = example;
 	}
 
@@ -205,5 +181,35 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>>
 	public long getCount() {
 		return this.count;
 	}
+
+	@Override
+	public T instantiateEntity() {
+		
+		try {
+			return t.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public U instantiateCriteria() {
+	
+		try {
+			return u.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public  Class<T> getEntityClazz(){return t;};
+	
+	public  Class<U> getCriteriaClazz(){return u;};
 
 }

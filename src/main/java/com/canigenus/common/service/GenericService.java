@@ -7,9 +7,9 @@ import java.util.Set;
 import javax.faces.convert.Converter;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.util.CriteriaPopulator;
 
-public interface GenericService<E extends Identifiable<?>, F> {
+
+public interface GenericService<E extends Identifiable<?>, F extends E> {
 
 	public <T> void save(T model);
 
@@ -27,124 +27,52 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	<T extends Identifiable<?>> T update(T model);
 
-	/**
-	 * @param clazz
-	 * @param id
-	 * @param fieldsToLoad
-	 * @return
-	 */
-
 	public <T> T get(Object id);
 
 	public <T> T get(Object id, Class<T> classType);
 
-	<T> T get(Class<T> clazz, Object id, String... fieldsToLoad);
+	<T> T getPartialEntity(Class<T> clazz, Object id, String... fieldsToLoad);
 
-	E get(Object id, String... fieldsToLoad);
+	E getPartialEntity(Object id, String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param filterFieldName
-	 * @param filterFieldValue
-	 * @param fieldsToLoad
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz, String filterFieldName,
+
+	<T> List<T> getListWithPartialEntityByColumnNameAndValue(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue, String... fieldsToLoad);
 
-	List<E> getList(String filterFieldName, Object filterFieldValue,
+	List<E> getListWithPartialEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue,
 			String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param filterFieldName
-	 * @param filterFieldValue
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz, String filterFieldName,
+	
+	<T> List<T> getListByColumnNameAndValue(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue);
 
-	List<E> getList(String filterFieldName, Object filterFieldValue);
+	List<E> getListByColumnNameAndValue(String filterFieldName, Object filterFieldValue);
 
-	/**
-	 * @param clazz
-	 * @param criteriaPopulator
-	 * @param firstResult
-	 * @param maxResult
-	 * @param orderBy
-	 * @param joinTableWithFieldsToLoad
-	 * @param fieldsToLoad
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
-			int firstResult, int maxResult, Map<String, Boolean> orderBy,
-			Map<String, Set<String>> joinTableWithFieldsToLoad,
-			String... fieldsToLoad);
 
-	List<E> getList(CriteriaPopulator<F> criteriaPopulator, int firstResult,
+
+
+	List<E> getList(F criteriaPopulator, int firstResult,
 			int maxResult, Map<String, Boolean> orderBy,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param criteriaPopulator
-	 * @param firstResult
-	 * @param maxResult
-	 * @param fieldsToLoad
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
-			int firstResult, int maxResult, String... fieldsToLoad);
 
-	List<E> getList(CriteriaPopulator<F> criteriaPopulator, int firstResult,
+
+	List<E> getList(F criteriaPopulator, int firstResult,
 			int maxResult, String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param criteriaPopulator
-	 * @param firstResult
-	 * @param maxResult
-	 * @param orderBy
-	 * @param fieldsToLoad
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
+	
+	
+
+	 List<E> getList(F criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			String... fieldsToLoad);
 
-	 List<E> getList(CriteriaPopulator<F> criteriaPopulator,
-			int firstResult, int maxResult, Map<String, Boolean> orderBy,
-			String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param criteriaPopulator
-	 * @param fieldsToLoad
-	 * @return
-	 */
-	<T> List<T> getList(Class<T> clazz,
-			CriteriaPopulator<?> criteriaPopulator, String... fieldsToLoad);
 	
-	 List<E> getList(CriteriaPopulator<F> criteriaPopulator, String... fieldsToLoad);
-	
+	 List<E> getList(F criteriaPopulator, String... fieldsToLoad);
 
-	/**
-	 * @param clazz
-	 * @param criteriaPopulator
-	 * @return
-	 */
-	<T> Long getCount(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator);
-	
-	Long getCount(CriteriaPopulator<F> criteriaPopulator);
-
-	<T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator,
-			String column);
-
-	<T, U extends Number> U getSumByColumn(Class<T> clazz,
-			Class<U> returningClass, CriteriaPopulator<?> criteriaPopulator,
-			String column, int start, int end);
+	Long getCount(F criteriaPopulator);
 
 	<T> boolean isUnique(Class<T> entity, String propertyName,
 			Object propertyValue);
@@ -167,11 +95,7 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	Long getMaxByColumn(String column);
 
-	<T> List<T> getList(Class<T> clazz, CriteriaPopulator<?> criteriaPopulator,
-			int firstResult, int maxResult, Map<String, Boolean> orderBy,
-			boolean distinct,
-			Map<String, Set<String>> joinTableWithFieldsToLoad,
-			String... fieldsToLoad);
+	
 
 	<T> T get(Class<T> clazz, String filterFieldName, Object filterFieldValue);
 
@@ -179,11 +103,8 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	Converter getConverter();
 
-	Long getCount(E example);
 
-	List<E> search(int page, int pageSize, E example);
-
-	Class<E> getClazz();
+	List<E> search(int page, int pageSize, F example);
 
 	E getWithChildById(Object id, String... fetchRelations);
 
@@ -194,6 +115,16 @@ public interface GenericService<E extends Identifiable<?>, F> {
 
 	E getWithChild(String filterFieldName, Object filterFieldValue,
 			String... fetchRelations);
+	
+	public  Class<E> getEntityClazz();
+	
+	public  Class<F> getCriteriaClazz();
+	
+
+	List<E> getList(F criteriaPopulator2, int firstResult, int maxResult,
+			Map<String, Boolean> orderBy, boolean distinct,
+			Map<String, Set<String>> joinTableWithFieldsToLoad,
+			String... fieldsToLoad);
 	
 
 }

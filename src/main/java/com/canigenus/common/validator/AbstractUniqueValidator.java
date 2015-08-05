@@ -15,7 +15,7 @@ public abstract class AbstractUniqueValidator implements Validator {
 	
 
 
-  public abstract GenericServiceImpl<?> getService();
+  public abstract GenericServiceImpl<?,?> getService();
 
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {

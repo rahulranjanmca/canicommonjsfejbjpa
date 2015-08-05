@@ -7,11 +7,28 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
+
+
 import com.canigenus.common.model.Identifiable;
 import com.canigenus.common.service.GenericServiceImpl;
 
-public abstract class AbstractBaseController<T extends Identifiable<?>> implements Serializable {
-	protected abstract GenericServiceImpl<T> getService();
+public abstract class AbstractBaseController<T extends Identifiable<?>, U extends T> implements Serializable, Controllable<T, U> {
+	public abstract GenericServiceImpl<T, U> getService();
+	
+	private Class<T> t;
+	private Class<U> u;
+	
+	
+	
+	
+	public AbstractBaseController() {
+	}
+	
+	public AbstractBaseController(Class<T> t, Class<U> u) {
+		this.t=t;
+		this.u=u;
+		 example= instantiateCriteria();
+	}
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +42,8 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 		this.id = id;
 	}
 
-	private T current;
+	protected T current;
+	
 
 
 	public String create() {
@@ -48,10 +66,6 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 
 		return getService().get(id);
 	}
-
-	/*
-	 * Support updating and deleting Member entities
-	 */
 
 	public String update() {
 			try {
@@ -89,7 +103,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	private long count;
 	private List<T> pageItems;
 
-	protected T example = instanciateEntity();
+	protected U example;
 
 	public int getPage() {
 		return this.page;
@@ -103,11 +117,11 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 		return 10;
 	}
 
-	public T getExample() {
+	public U getExample() {
 		return this.example;
 	}
 
-	public void setExample(T example) {
+	public void setExample(U example) {
 		this.example = example;
 	}
 
@@ -136,7 +150,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	 */
 
 	public List<T> getAll() {
-		return getService().getList(getService().getClazz(), null);
+		return getService().getList(instantiateCriteria());
 	}
 
 	public Converter getConverter() {
@@ -147,17 +161,7 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 	 * Support adding children to bidirectional, one-to-many tables
 	 */
 
-	private T add = instanciateEntity();
-
-	public T getAdd() {
-		return this.add;
-	}
-
-	public T getAdded() {
-		T added = this.add;
-		this.add = instanciateEntity();
-		return added;
-	}
+	
 
 	public T getCurrent() {
 		return current;
@@ -167,5 +171,44 @@ public abstract class AbstractBaseController<T extends Identifiable<?>> implemen
 		this.current = current;
 	}
 
-	protected abstract T instanciateEntity();
+	@Override
+	public T instantiateEntity() {
+		try {
+			return t.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public U instantiateCriteria() {
+		try {
+			return u.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void setCount(long count) {
+		this.count = count;
+	}
+
+	public void setPageItems(List<T> pageItems) {
+		this.pageItems = pageItems;
+	}
+	public  Class<T> getEntityClazz(){
+		return t;
+	};
+	
+	public  Class<U> getCriteriaClazz(){
+		return u;
+	};
+	
+	
 }

@@ -50,7 +50,7 @@ public abstract class AbstractSearchController<T extends Identifiable<?>> implem
 
 	}
 
-	public abstract GenericServiceImpl<?> getService();
+	public abstract GenericServiceImpl<?,?> getService();
 
 	public abstract Class<T> getClassType();
 	

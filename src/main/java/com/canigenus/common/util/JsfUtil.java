@@ -8,6 +8,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.model.SelectItem;
 
+import com.canigenus.common.model.Identifiable;
+
 public class JsfUtil {
 	
 	/*@SuppressWarnings({"unchecked", "el-syntax"})
@@ -21,11 +23,25 @@ public class JsfUtil {
         SelectItem[] items = new SelectItem[size];
         int i = 0;
         if (selectOne) {
-            items[0] = new SelectItem("", "---");
+            items[0] = new SelectItem(null, "---");
             i++;
         }
         for (Object x : entities) {
             items[i++] = new SelectItem(x, x.toString());
+        }
+        return items;
+    }
+    
+    public static SelectItem[] getSelectItemsWithId(List<? extends Identifiable<?>> entities, boolean selectOne) {
+        int size = selectOne ? entities.size() + 1 : entities.size();
+        SelectItem[] items = new SelectItem[size];
+        int i = 0;
+        if (selectOne) {
+            items[0] = new SelectItem(null, "---");
+            i++;
+        }
+        for (Identifiable<?> x : entities) {
+            items[i++] = new SelectItem(x.getId(), x.toString());
         }
         return items;
     }

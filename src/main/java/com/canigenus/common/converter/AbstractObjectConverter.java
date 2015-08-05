@@ -11,7 +11,7 @@ import com.canigenus.common.service.GenericServiceImpl;
 
 public abstract class AbstractObjectConverter implements Converter {
 
-	public abstract GenericServiceImpl<?> getService();
+	public abstract GenericServiceImpl<?,?> getService();
 
 	public String getName() {
 		return "name";
@@ -21,7 +21,7 @@ public abstract class AbstractObjectConverter implements Converter {
 
 	public Object getAsObject(FacesContext context, UIComponent component,
 			String value) {
-		List<? extends Convertible<?>> list = getService().getList(
+		List<? extends Convertible<?>> list = getService().getListByColumnNameAndValue(
 				getClassType(), getName(), value);
 		if (list.size() == 0) {
 			return null;

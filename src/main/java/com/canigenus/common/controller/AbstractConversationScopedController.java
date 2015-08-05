@@ -1,6 +1,5 @@
 package com.canigenus.common.controller;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.enterprise.context.Conversation;
@@ -10,11 +9,21 @@ import javax.faces.convert.Converter;
 import javax.inject.Inject;
 
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.service.GenericServiceImpl;
+import com.canigenus.common.service.GenericService;
  
-public abstract class AbstractConversationScopedController<T extends Identifiable<?>> implements Serializable {
+public abstract class AbstractConversationScopedController<T extends Identifiable<?>, U extends T> implements Controllable<T, U> {
+	private Class<T> t;
+	private Class<U> u;
+	public AbstractConversationScopedController() {
+	}
+	
+	public AbstractConversationScopedController(Class<T> t, Class<U> u) {
+		this.t=t;
+		this.u=u;
+		example = instantiateCriteria();
+	}
 
-	protected abstract GenericServiceImpl<T> getService();
+	public abstract GenericService<T, U> getService();
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,7 +40,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	private T current;
 
 	@Inject
-	private Conversation conversation;
+	protected Conversation conversation;
 
 	public String create() {
 
@@ -107,7 +116,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	private long count;
 	private List<T> pageItems;
 
-	private T example = instanciateEntity();
+	private U example = instantiateCriteria();
 
 	public int getPage() {
 		return this.page;
@@ -121,11 +130,11 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		return 10;
 	}
 
-	public T getExample() {
+	public U getExample() {
 		return this.example;
 	}
 
-	public void setExample(T example) {
+	public void setExample(U example) {
 		this.example = example;
 	}
 
@@ -154,7 +163,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	 */
 
 	public List<T> getAll() {
-		return getService().getList(getService().getClazz(), null);
+		return getService().getList(instantiateCriteria());
 	}
 
 	public Converter getConverter() {
@@ -165,17 +174,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	 * Support adding children to bidirectional, one-to-many tables
 	 */
 
-	private T add = instanciateEntity();
 
-	public T getAdd() {
-		return this.add;
-	}
-
-	public T getAdded() {
-		T added = this.add;
-		this.add = instanciateEntity();
-		return added;
-	}
 
 	public T getCurrent() {
 		return current;
@@ -185,6 +184,31 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		this.current = current;
 	}
 
-	protected abstract T instanciateEntity();
+	@Override
+	public T instantiateEntity() {try {
+		return t.newInstance();
+	} catch (InstantiationException | IllegalAccessException e) {
+		e.printStackTrace();
+	}
+	return null;
+	}
+
+	@Override
+	public U instantiateCriteria() {
+		try {
+			return u.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public  Class<T> getEntityClazz(){
+		return t;
+	}
+	
+	public  Class<U> getCriteriaClazz(){
+		return u;
+	}
 
 }
