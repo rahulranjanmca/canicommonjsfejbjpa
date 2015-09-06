@@ -50,7 +50,7 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>,
 
 	private static final long serialVersionUID = 8983428198453421888L;
 
-	private T current;
+	protected T current;
 
 	public abstract GenericService<T, U> getService();
 
@@ -116,6 +116,26 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>,
 
 		return "List";
 
+	}
+	
+	public String destroy(Long id) {
+		try {
+			getService().deleteById(id);
+			JsfUtil.addSuccessMessage(getEntityClazz().getSimpleName()+" Deleted");
+		} catch (Exception e) {
+			JsfUtil.addErrorMessage(e, ResourceBundle.getBundle("/Bundle")
+					.getString("PersistenceErrorOccured"));
+			return null;
+		}
+
+		search();
+
+		return "List";
+
+	}
+	
+	public void destroyAndStayOnSamePage(Long id){
+		destroy(id);
 	}
 
 	public SelectItem[] getItemsAvailableSelectMany() {

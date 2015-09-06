@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -81,6 +82,14 @@ public class JavaUtil {
 			return true;
 		}
 		return false;
+	}
+	
+	public static String replacePlaceHolders(String o, Map<String,String> keyValues) {
+	  for(Map.Entry<String, String> entry:keyValues.entrySet())
+	  {
+		  o=o.replace(entry.getKey(), entry.getValue());
+	  }
+	  return o;
 	}
 	
 	
