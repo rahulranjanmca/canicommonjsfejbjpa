@@ -115,7 +115,7 @@ public abstract class AbstractMongoDBService<T extends Identifiable<?>, U extend
 	}
 
 	@Override
-	public T get(String filterFieldName, Object filterFieldValue) {
+	public T getEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue) {
 		try{
 		T entity = getEntityManager().createQuery(
 				"select e from " + getEntityClazz().getSimpleName() + " e "+ "where e."+filterFieldName+"='"+filterFieldValue+"'",
@@ -129,7 +129,7 @@ public abstract class AbstractMongoDBService<T extends Identifiable<?>, U extend
 	}
 	
 	@Override
-	public <E> E get(Class<E> clazz, String filterFieldName,
+	public <E> E getEntityByColumnNameAndValue(Class<E> clazz, String filterFieldName,
 			Object filterFieldValue) {
 		EntityManager em=EntityMangerFactorySingleton.getEMF().createEntityManager();
 		try{

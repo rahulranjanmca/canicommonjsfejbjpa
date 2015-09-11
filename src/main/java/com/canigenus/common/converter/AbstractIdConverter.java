@@ -19,7 +19,7 @@ public abstract class AbstractIdConverter implements Converter{
 
 	public Object getAsObject(FacesContext context, UIComponent component,
 			String value) {
-		return getService().get(getClassType(), getName(), value).getId();
+		return getService().getEntityByColumnNameAndValue(getClassType(), getName(), value).getId();
 	}
 
 	public String getAsString(FacesContext context, UIComponent component,

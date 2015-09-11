@@ -132,13 +132,13 @@ public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U
 	}
 
 	@Override
-	public T get(String filterFieldName, Object filterFieldValue) {
+	public T getEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue) {
 		return  MongoClientSigleton.getDatastore().createQuery(getEntityClazz()).field(filterFieldName).equal(filterFieldName).get();
 		
 	}
 	
 	@Override
-	public <E> E get(Class<E> clazz, String filterFieldName,
+	public <E> E getEntityByColumnNameAndValue(Class<E> clazz, String filterFieldName,
 			Object filterFieldValue) {
 		EntityManager em=EntityMangerFactorySingleton.getEMF().createEntityManager();
 		try{

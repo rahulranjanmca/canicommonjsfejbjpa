@@ -285,7 +285,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>, U extends E>
 
 	
 	@Override
-	public <T> T get(Class<T> clazz, String filterFieldName,
+	public <T> T getEntityByColumnNameAndValue(Class<T> clazz, String filterFieldName,
 			Object filterFieldValue) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(clazz);
@@ -328,8 +328,8 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>, U extends E>
 	}
 
 	@Override
-	public E get(String filterFieldName, Object filterFieldValue) {
-		return get(getEntityClazz(), filterFieldName, filterFieldValue);
+	public E getEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue) {
+		return getEntityByColumnNameAndValue(getEntityClazz(), filterFieldName, filterFieldValue);
 	}
 
 	@Override
@@ -338,7 +338,7 @@ public abstract class GenericServiceImpl<E extends Identifiable<?>, U extends E>
 	}
 
 	@Override
-	public <T> void save(T model) {
+	public <T extends Identifiable<?>> void save(T model) {
 		getEntityManager().persist(model);
 	}
 

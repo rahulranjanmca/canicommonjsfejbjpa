@@ -62,7 +62,7 @@ public abstract class AbstractMailBean implements Serializable{
 					getSMTPAddress(),
 					getPort(),
 					fromMail,
-					getCommonService().get(
+					getCommonService().getEntityByColumnNameAndValue(
 							getApplicationPropertiesClass(), "key",
 							fromMail + "_PASSWORD").getValue());
 

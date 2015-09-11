@@ -14,11 +14,11 @@ import javax.persistence.Persistence;
 @Eager
 public class EntityMangerFactorySingleton {
 	private static EntityManagerFactory emf;
-	static {
+	
+	public static void init(){
 		emf = Persistence.createEntityManagerFactory("secondory");
-		;
-		
 	}
+	
 
 	public static EntityManagerFactory getEMF() {
 		return emf;

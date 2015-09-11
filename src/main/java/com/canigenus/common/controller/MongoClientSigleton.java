@@ -17,7 +17,8 @@ public class MongoClientSigleton {
 	static Datastore dataStore;
 	static MongoClient mongoClient;
 	private static EntityManagerFactory emf;
-	static{
+	
+	public static void init(){
 		try {
 			emf = Persistence.createEntityManagerFactory("secondory");
 			;
@@ -39,7 +40,10 @@ public class MongoClientSigleton {
 		  morphia.getMapper().getConverters().addConverter(BigDecimalConverter.class);
 		  MongoClientSigleton.dataStore = morphia.createDatastore(MongoClientSigleton.mongoClient, emf.getProperties().get("hibernate.ogm.datastore.database").toString());
 	      morphia.mapPackage("com.canigenus");
+	
+		
 	}
+	
 	public static MongoClient getMongoClient() {
 		return mongoClient;
 	}

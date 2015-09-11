@@ -17,5 +17,10 @@ public class CommonApplicationScoped {
 			return new ArrayList<>();
 		return Arrays.asList(array);
 	}
+	
+	public Object[] createArray(int size) {
+        return new Object[size];
+    }
+
 
 }

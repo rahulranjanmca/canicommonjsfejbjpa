@@ -9,119 +9,119 @@ import javax.faces.convert.Converter;
 import com.canigenus.common.model.Identifiable;
 
 
-public interface GenericService<E extends Identifiable<?>, F extends E> {
+public interface GenericService<T extends Identifiable<?>, U extends T> {
 
-	public <T> void save(T model);
+	public <E extends Identifiable<?>> void save(E model);
 
-	public <T> void delete(T model);
+	public <E> void delete(E model);
 
 	public void deleteById(Object id);
 
-	public <T> void deleteDetached(T model);
+	public <E> void deleteDetached(E model);
 
-	<T> void persist(T model, boolean clear);
+	<E> void persist(E model, boolean clear);
 
-	<T> void refresh(T model);
+	<E> void refresh(E model);
 
-	<T extends Identifiable<?>> T saveOrUpdate(T model);
+	<E extends Identifiable<?>> E saveOrUpdate(E model);
 
-	<T extends Identifiable<?>> T update(T model);
+	<E extends Identifiable<?>> E update(E model);
 
-	public <T> T get(Object id);
+	public <E> E get(Object id);
 
-	public <T> T get(Object id, Class<T> classType);
+	public <E> E get(Object id, Class<E> classType);
 
-	<T> T getPartialEntity(Class<T> clazz, Object id, String... fieldsToLoad);
+	<E> E getPartialEntity(Class<E> clazz, Object id, String... fieldsToLoad);
 
-	E getPartialEntity(Object id, String... fieldsToLoad);
+	T getPartialEntity(Object id, String... fieldsToLoad);
 
 
-	<T> List<T> getListWithPartialEntityByColumnNameAndValue(Class<T> clazz, String filterFieldName,
+	<E> List<E> getListWithPartialEntityByColumnNameAndValue(Class<E> clazz, String filterFieldName,
 			Object filterFieldValue, String... fieldsToLoad);
 
-	List<E> getListWithPartialEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue,
+	List<T> getListWithPartialEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue,
 			String... fieldsToLoad);
 
 	
-	<T> List<T> getListByColumnNameAndValue(Class<T> clazz, String filterFieldName,
+	<E> List<E> getListByColumnNameAndValue(Class<E> clazz, String filterFieldName,
 			Object filterFieldValue);
 
-	List<E> getListByColumnNameAndValue(String filterFieldName, Object filterFieldValue);
+	List<T> getListByColumnNameAndValue(String filterFieldName, Object filterFieldValue);
 
 
 
 
-	List<E> getList(F criteriaPopulator, int firstResult,
+	List<T> getList(U criteriaPopulator, int firstResult,
 			int maxResult, Map<String, Boolean> orderBy,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad);
 
 
 
-	List<E> getList(F criteriaPopulator, int firstResult,
+	List<T> getList(U criteriaPopulator, int firstResult,
 			int maxResult, String... fieldsToLoad);
 
 	
 	
 
-	 List<E> getList(F criteriaPopulator,
+	 List<T> getList(U criteriaPopulator,
 			int firstResult, int maxResult, Map<String, Boolean> orderBy,
 			String... fieldsToLoad);
 
 
 	
-	 List<E> getList(F criteriaPopulator, String... fieldsToLoad);
+	 List<T> getList(U criteriaPopulator, String... fieldsToLoad);
 
-	Long getCount(F criteriaPopulator);
+	Long getCount(U criteriaPopulator);
 
-	<T> boolean isUnique(Class<T> entity, String propertyName,
+	<E> boolean isUnique(Class<E> entity, String propertyName,
 			Object propertyValue);
 
 	boolean isUnique(String propertyName, Object propertyValue);
 
-	<T> boolean isUniqueExceptThis(Class<T> entity, Identifiable<?> object,
+	<E> boolean isUniqueExceptThis(Class<E> entity, Identifiable<?> object,
 			String propertyName, Object propertyValue);
 
 	boolean isUniqueExceptThis(Identifiable<?> object, String propertyName,
 			Object propertyValue);
 
-	<T> boolean isUniqueForSaveOrUpdate(Class<T> entity,
+	<E> boolean isUniqueForSaveOrUpdate(Class<E> entity,
 			Identifiable<?> object, String propertyName, Object propertyValue);
 
 	boolean isUniqueForSaveOrUpdate(Identifiable<?> object,
 			String propertyName, Object propertyValue);
 
-	<T> Long getMaxByColumn(Class<T> clazz, String column);
+	<E> Long getMaxByColumn(Class<E> clazz, String column);
 
 	Long getMaxByColumn(String column);
 
 	
 
-	<T> T get(Class<T> clazz, String filterFieldName, Object filterFieldValue);
+	<E> E getEntityByColumnNameAndValue(Class<E> clazz, String filterFieldName, Object filterFieldValue);
 
-	E get(String filterFieldName, Object filterFieldValue);
+	T getEntityByColumnNameAndValue(String filterFieldName, Object filterFieldValue);
 
 	Converter getConverter();
 
 
-	List<E> search(int page, int pageSize, F example);
+	List<T> search(int page, int pageSize, U example);
 
-	E getWithChildById(Object id, String... fetchRelations);
+	T getWithChildById(Object id, String... fetchRelations);
 
-	<T> T getWithChildById(Class<T> classType, Object id, String... fetchRelations);
+	<E> E getWithChildById(Class<E> classType, Object id, String... fetchRelations);
 
-     <T>	T getWithChild(Class<T> clazz, String filterFieldName, Object filterFieldValue,
+     <E>	E getWithChild(Class<E> clazz, String filterFieldName, Object filterFieldValue,
 			String... fetchRelations);
 
-	E getWithChild(String filterFieldName, Object filterFieldValue,
+	T getWithChild(String filterFieldName, Object filterFieldValue,
 			String... fetchRelations);
 	
-	public  Class<E> getEntityClazz();
+	public  Class<T> getEntityClazz();
 	
-	public  Class<F> getCriteriaClazz();
+	public  Class<U> getCriteriaClazz();
 	
 
-	List<E> getList(F criteriaPopulator2, int firstResult, int maxResult,
+	List<T> getList(U criteriaPopulator2, int firstResult, int maxResult,
 			Map<String, Boolean> orderBy, boolean distinct,
 			Map<String, Set<String>> joinTableWithFieldsToLoad,
 			String... fieldsToLoad);
