@@ -12,7 +12,7 @@ import javax.faces.convert.Converter;
 import com.canigenus.common.model.Identifiable;
 import com.canigenus.common.service.GenericServiceImpl;
 
-public abstract class AbstractBaseController<T extends Identifiable<?>, U extends T> implements Serializable, Controllable<T, U> {
+public abstract class AbstractBaseController<T extends Identifiable<?>, U extends Identifiable<?>> implements Serializable, Controllable<T, U> {
 	public abstract GenericServiceImpl<T, U> getService();
 	
 	private Class<T> t;
@@ -51,15 +51,10 @@ public abstract class AbstractBaseController<T extends Identifiable<?>, U extend
 	}
 
 	public void retrieve() {
-
 		if (FacesContext.getCurrentInstance().isPostback()) {
 			return;
 		}
-		if (this.id == null) {
-			this.current = this.example;
-		} else {
 			this.current = findById(getId());
-		}
 	}
 
 	public T findById(Long id) {

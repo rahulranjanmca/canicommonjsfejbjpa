@@ -1,26 +1,32 @@
 package com.canigenus.common.service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import org.bson.types.ObjectId;
+import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.mongodb.morphia.query.Query;
 
+import com.canigenus.common.controller.ElasticSearchSingleton;
 import com.canigenus.common.controller.EntityMangerFactorySingleton;
 import com.canigenus.common.controller.MongoClientSigleton;
 import com.canigenus.common.model.Identifiable;
-import com.canigenus.common.util.JavaUtil;
+import com.google.gson.Gson;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U extends Identifiable<?>> extends
+public abstract class AbstractElasticSearchService<T extends Identifiable<?>, U extends T> extends
 		GenericServiceImpl<T, U> {
 
 	Class<T> t;
 	Class<U> u;
 
-	public AbstractMongoDBMorphiaService(Class<T> t,Class<U> u)
+	public AbstractElasticSearchService(Class<T> t,Class<U> u)
 	{
 		this.t=t;
 		this.u=u;
@@ -28,25 +34,42 @@ public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U
 	}
 	
 
-	public AbstractMongoDBMorphiaService()
+	public AbstractElasticSearchService()
 	{
 		
 	}
 	private static final long serialVersionUID = 1L;
+	
+	
+
+	
+	@Override
+	public <E  extends Identifiable<?>> void save(E model) {
+		((Identifiable<String>)model).setId(new ObjectId().toString());
+		IndexRequest indexRequest = new IndexRequest(ElasticSearchSingleton.getIndexName(),getEntityClazz().getSimpleName(), model.getId().toString());
+		indexRequest.source(new Gson().toJson(model));
+		ElasticSearchSingleton.getClient().index(indexRequest).actionGet();
+	}
+
 
 	@Override
 	public <E extends Identifiable<?>> E update(E model) {
+		IndexRequest indexRequest = new IndexRequest(ElasticSearchSingleton.getIndexName(),getEntityClazz().getSimpleName(), model.getId().toString());
+		indexRequest.source(new Gson().toJson(model));
 		
-		if(JavaUtil.isBlank(((Identifiable<String>)model).getId()))
-		{
-			((Identifiable<String>)model).setId(new ObjectId().toString());
-			MongoClientSigleton.getDatastore().save(model);
-		}
-		else{
-			MongoClientSigleton.getDatastore().merge(model);
-		}
 		
-		return model;
+			UpdateRequest upsertRequest = new UpdateRequest(ElasticSearchSingleton.getIndexName(),getEntityClazz().getSimpleName(), model.getId().toString());
+			upsertRequest.doc(new Gson().toJson(model)).upsert(indexRequest);
+		    try {
+		    	ElasticSearchSingleton.getClient().update(upsertRequest).get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+		    return model;
 	}
 
 	@Override
@@ -61,11 +84,15 @@ public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U
 	
 	
 	
+	
 	@Override
 	public T get(Object id) {
-		return  MongoClientSigleton.getDatastore().get(getEntityClazz(), id);
-		/*T t = getEntityManager().find(getEntityClazz(), id);
-		return t;*/
+		
+		GetRequestBuilder getRequestBuilder =ElasticSearchSingleton.getClient().prepareGet(getEntityClazz().getSimpleName(), getEntityClazz().getSimpleName(), id.toString());
+		GetResponse response = getRequestBuilder.execute().actionGet();
+		Gson gson= new Gson();
+		return gson.fromJson(response.getSourceAsString(), getEntityClazz());
+		
 	}
 
 	@Override
@@ -187,6 +214,13 @@ public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U
 	
 	
 	
+	@Override
+	public EntityManager getEntityManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 	protected Query<T> addCriteria(U searchCriteria, Query<T> query){return query;}
 	
 	

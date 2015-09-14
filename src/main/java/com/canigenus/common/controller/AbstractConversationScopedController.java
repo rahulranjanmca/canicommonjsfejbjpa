@@ -46,7 +46,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 
 		this.conversation.begin();
 		this.conversation.setTimeout(1800000L);
-		return "create?faces-redirect=true";
+		return "Edit?faces-redirect=true";
 	}
 
 	public void retrieve() {
@@ -116,7 +116,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	private long count;
 	private List<T> pageItems;
 
-	private U example = instantiateCriteria();
+	private U example;
 
 	public int getPage() {
 		return this.page;
@@ -147,6 +147,23 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		count = getService().getCount(example);
 		pageItems = getService().search(page,getPageSize(), example);
 
+	}
+	
+
+	public String prepareList() {
+		return "List";
+	}
+
+	public String prepareView() {
+		return "View";
+	}
+
+	public String prepareCreate() {
+
+		this.conversation.begin();
+		this.conversation.setTimeout(1800000L);
+		current = instantiateEntity();
+		return "Edit?faces-redirect=true";
 	}
 
 	public List<T> getPageItems() {

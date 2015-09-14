@@ -21,7 +21,7 @@ import com.canigenus.common.util.JsfUtil;
  * 
  * @author Rahul
  */
-public abstract class AbstractSessionScopedController<T extends Identifiable<?>, U extends T> implements
+public abstract class AbstractSessionScopedController<T extends Identifiable<?>, U  extends Identifiable<?>> implements
 		Serializable, Controllable<T, U> {
 	
 	

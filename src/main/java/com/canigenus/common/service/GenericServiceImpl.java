@@ -24,7 +24,7 @@ import javax.persistence.criteria.Selection;
 
 import com.canigenus.common.model.Identifiable;
 
-public abstract class GenericServiceImpl<E extends Identifiable<?>, U extends E> implements
+public abstract class GenericServiceImpl<E extends Identifiable<?>, U  extends Identifiable<?>> implements
 		GenericService<E, U>, Serializable {
 	private static final long serialVersionUID = 1L;
 

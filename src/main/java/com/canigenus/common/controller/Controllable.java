@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.canigenus.common.model.Identifiable;
 import com.canigenus.common.service.GenericService;
 
-public interface Controllable<T extends Identifiable<?>, U extends T> extends Serializable {
+public interface Controllable<T extends Identifiable<?>, U  extends Identifiable<?>> extends Serializable {
 	public abstract GenericService<T, U> getService();
 
 	public abstract T instantiateEntity();
@@ -15,4 +15,6 @@ public interface Controllable<T extends Identifiable<?>, U extends T> extends Se
 	public  Class<T> getEntityClazz();
 	
 	public  Class<U> getCriteriaClazz();
+	
+
 }

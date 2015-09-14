@@ -9,7 +9,7 @@ import javax.faces.convert.Converter;
 import com.canigenus.common.model.Identifiable;
 
 
-public interface GenericService<T extends Identifiable<?>, U extends T> {
+public interface GenericService<T extends Identifiable<?>, U extends Identifiable<?>> {
 
 	public <E extends Identifiable<?>> void save(E model);
 
