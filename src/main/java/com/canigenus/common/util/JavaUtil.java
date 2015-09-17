@@ -84,6 +84,14 @@ public class JavaUtil {
 		return false;
 	}
 	
+
+	public static boolean isTrue(Boolean b) {
+		if (b!= null && b==Boolean.TRUE) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static String replacePlaceHolders(String o, Map<String,String> keyValues) {
 	  for(Map.Entry<String, String> entry:keyValues.entrySet())
 	  {

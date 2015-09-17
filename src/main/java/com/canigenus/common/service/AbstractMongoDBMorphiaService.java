@@ -48,6 +48,16 @@ public abstract class AbstractMongoDBMorphiaService<T extends Identifiable<?>, U
 		
 		return model;
 	}
+	
+
+	@Override
+	public <E extends Identifiable<?>> void save(E model) {
+		if(JavaUtil.isBlank(((Identifiable<String>)model).getId()))
+		{
+			((Identifiable<String>)model).setId(new ObjectId().toString());
+			MongoClientSigleton.getDatastore().save(model);
+		}
+	}
 
 	@Override
 	public <E> void deleteDetached(E model) {

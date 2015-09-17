@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import com.canigenus.common.model.Identifiable;
 import com.canigenus.common.service.GenericService;
  
-public abstract class AbstractConversationScopedController<T extends Identifiable<?>, U extends T> implements Controllable<T, U> {
+public abstract class AbstractConversationScopedController<T extends Identifiable<?>, U  extends Identifiable<?>> extends AbstractSessionScopedController<T, U>implements Controllable<T, U> {
 	private Class<T> t;
 	private Class<U> u;
 	public AbstractConversationScopedController() {
@@ -27,15 +27,6 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 
 	private static final long serialVersionUID = 1L;
 
-	private Long id;
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	private T current;
 
@@ -49,7 +40,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		return "Edit?faces-redirect=true";
 	}
 
-	public void retrieve() {
+	/*public void retrieve() {
 
 		if (FacesContext.getCurrentInstance().isPostback()) {
 			return;
@@ -65,12 +56,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		} else {
 			this.current = findById(getId());
 		}
-	}
-
-	public T findById(Long id) {
-
-		return getService().get(id);
-	}
+	}*/
 
 	/*
 	 * Support updating and deleting Member entities
@@ -80,13 +66,13 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		this.conversation.end();
 
 		try {
-			if (this.id == null) {
+			/*if (this.id == null) {
 				getService().save(this.current);
 				return "search?faces-redirect=true";
-			} else {
+			} else {*/
 				getService().update(this.current);
-				return "view?faces-redirect=true&id=" + this.current.getId();
-			}
+				return "List?faces-redirect=true";
+			//}
 		} catch (Exception e) {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(e.getMessage()));
@@ -98,7 +84,7 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		this.conversation.end();
 
 		try {
-			getService().deleteById(getId());
+			getService().deleteById(getCurrent().getId());
 			;
 			return "search?faces-redirect=true";
 		} catch (Exception e) {
@@ -138,11 +124,6 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 		this.example = example;
 	}
 
-	public String search() {
-		this.page = 0;
-		return null;
-	}
-
 	public void paginate() {
 		count = getService().getCount(example);
 		pageItems = getService().search(page,getPageSize(), example);
@@ -151,6 +132,12 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	
 
 	public String prepareList() {
+		try{
+		this.conversation.end();
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		return "List";
 	}
 
@@ -227,5 +214,22 @@ public abstract class AbstractConversationScopedController<T extends Identifiabl
 	public  Class<U> getCriteriaClazz(){
 		return u;
 	}
+
+	@Override
+	public String prepareEdit() {
+		if (FacesContext.getCurrentInstance().isPostback()) {
+			return "";
+		}
+
+		if (this.conversation.isTransient()) {
+			this.conversation.begin();
+			this.conversation.setTimeout(1800000L);
+		}
+			this.current = getService().get(getCurrent().getId());
+			return "Edit";
+		}
+	
+	
+	
 
 }

@@ -185,6 +185,7 @@ public abstract class AbstractSessionScopedController<T extends Identifiable<?>,
 
 	public String search() {
 		this.page = 0;
+		paginate();
 		return null;
 	}
 
